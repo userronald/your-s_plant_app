@@ -1,0 +1,141 @@
+{
+  "generatedAt": "2026-10-24T22:45:00Z",
+  "generatedOnPlatform": "win32",
+  "projectType": "webapp",
+  "setup": [
+    {
+      "command": "npm",
+      "args": ["ci"]
+    }
+  ],
+  "assertions": [
+    {
+      "name": "production-build",
+      "kind": "process",
+      "command": "npm",
+      "args": ["run", "build"],
+      "verificationMethod": "exit-code",
+      "expected": "0",
+      "timeoutSeconds": 240
+    },
+    {
+      "name": "tests-pass",
+      "kind": "process",
+      "command": "npm",
+      "args": ["test"],
+      "verificationMethod": "test-results",
+      "expected": "0",
+      "timeoutSeconds": 300
+    },
+    {
+      "name": "route-home-http-200",
+      "kind": "http-probe",
+      "startCommand": "npm",
+      "startArgs": ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"],
+      "url": "http://127.0.0.1:5173/",
+      "verificationMethod": "http-status",
+      "expected": "200",
+      "timeoutSeconds": 120
+    },
+    {
+      "name": "route-plants-http-200",
+      "kind": "http-probe",
+      "startCommand": "npm",
+      "startArgs": ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"],
+      "url": "http://127.0.0.1:5173/plants",
+      "verificationMethod": "http-status",
+      "expected": "200",
+      "timeoutSeconds": 120
+    },
+    {
+      "name": "route-plant-profile-http-200",
+      "kind": "http-probe",
+      "startCommand": "npm",
+      "startArgs": ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"],
+      "url": "http://127.0.0.1:5173/plants/demo",
+      "verificationMethod": "http-status",
+      "expected": "200",
+      "timeoutSeconds": 120
+    },
+    {
+      "name": "route-passport-http-200",
+      "kind": "http-probe",
+      "startCommand": "npm",
+      "startArgs": ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"],
+      "url": "http://127.0.0.1:5173/passport",
+      "verificationMethod": "http-status",
+      "expected": "200",
+      "timeoutSeconds": 120
+    },
+    {
+      "name": "route-doctor-http-200",
+      "kind": "http-probe",
+      "startCommand": "npm",
+      "startArgs": ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"],
+      "url": "http://127.0.0.1:5173/doctor",
+      "verificationMethod": "http-status",
+      "expected": "200",
+      "timeoutSeconds": 120
+    },
+    {
+      "name": "route-assistant-http-200",
+      "kind": "http-probe",
+      "startCommand": "npm",
+      "startArgs": ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"],
+      "url": "http://127.0.0.1:5173/assistant",
+      "verificationMethod": "http-status",
+      "expected": "200",
+      "timeoutSeconds": 120
+    },
+    {
+      "name": "route-scan-http-200",
+      "kind": "http-probe",
+      "startCommand": "npm",
+      "startArgs": ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"],
+      "url": "http://127.0.0.1:5173/scan",
+      "verificationMethod": "http-status",
+      "expected": "200",
+      "timeoutSeconds": 120
+    },
+    {
+      "name": "route-growth-check-http-200",
+      "kind": "http-probe",
+      "startCommand": "npm",
+      "startArgs": ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"],
+      "url": "http://127.0.0.1:5173/scan/growth",
+      "verificationMethod": "http-status",
+      "expected": "200",
+      "timeoutSeconds": 120
+    },
+    {
+      "name": "route-location-guide-http-200",
+      "kind": "http-probe",
+      "startCommand": "npm",
+      "startArgs": ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"],
+      "url": "http://127.0.0.1:5173/scan/location",
+      "verificationMethod": "http-status",
+      "expected": "200",
+      "timeoutSeconds": 120
+    },
+    {
+      "name": "route-explore-http-200",
+      "kind": "http-probe",
+      "startCommand": "npm",
+      "startArgs": ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"],
+      "url": "http://127.0.0.1:5173/explore",
+      "verificationMethod": "http-status",
+      "expected": "200",
+      "timeoutSeconds": 120
+    },
+    {
+      "name": "route-profile-settings-http-200",
+      "kind": "http-probe",
+      "startCommand": "npm",
+      "startArgs": ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"],
+      "url": "http://127.0.0.1:5173/profile",
+      "verificationMethod": "http-status",
+      "expected": "200",
+      "timeoutSeconds": 120
+    }
+  ]
+}

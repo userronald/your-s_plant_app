@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">Plant photo placeholder</title>
+  <desc id="desc">A simple botanical illustration of a potted plant</desc>
+  <rect width="640" height="420" fill="#e9efe5"/>
+  <circle cx="508" cy="92" r="52" fill="#f6f3e8"/>
+  <path d="M0 326c98-43 175-38 269-5s207 31 371-21v120H0z" fill="#dce6d8"/>
+  <path d="M321 295c-9-74-12-143-8-213m11 143c-52-48-91-77-149-79m145 117c49-57 86-86 149-98" fill="none" stroke="#507252" stroke-linecap="round" stroke-width="12"/>
+  <path d="M314 129c-39-60-104-81-160-44 17 68 83 93 160 44m16 80c42-70 111-96 171-62-21 73-92 103-171 62m-4-34c-13-67 17-122 81-137 22 67-10 119-81 137" fill="#789574"/>
+  <path d="M262 282h117l-16 93h-85z" fill="#ba805e"/>
+  <path d="M249 274h143v18H249z" rx="8" fill="#93654e"/>
+</svg>
