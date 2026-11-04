@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState, type FormEvent } 
 import { Link, NavLink, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import type { User } from "@supabase/supabase-js";
 import { calculateCareSchedule, careTaskState } from "./domain/care";
 import {
   ArrowRight, Bell, BookOpen, Check, CheckCircle2, ChevronDown,
@@ -39,6 +40,8 @@ function AppShell() {
   const { pathname } = useLocation();
   const auth = useAuth();
   const { cloudState } = useAppData();
+  const displayName = displayNameForUser(auth.user);
+  const avatarInitial = displayName.slice(0, 1).toUpperCase();
   const currentSection = pathname.startsWith("/plants") ? "My plants"
     : pathname.startsWith("/passport") ? "Plant passport"
       : pathname.startsWith("/doctor") ? "Plant Doctor"
@@ -62,7 +65,7 @@ function AppShell() {
         </nav>
         <div className="sidebar-bottom">
           <div className="sidebar-note"><Leaf size={17} /><span>A little care goes a long way.</span></div>
-          <div className="profile-mini"><div className="avatar">S</div><div><strong>Sam’s garden</strong><small>Personal space</small></div><ChevronDown size={16} /></div>
+          <div className="profile-mini"><div className="avatar">{avatarInitial}</div><div><strong>{displayName}’s garden</strong><small>Personal space</small></div><ChevronDown size={16} /></div>
         </div>
       </aside>
       <div className="min-h-screen lg:pl-[258px]">
@@ -75,7 +78,7 @@ function AppShell() {
           <div className="flex items-center gap-2">
             <span className="mode-pill"><span className="mode-dot" />{isDemoMode || !auth.user ? "Local demo" : auth.loading || cloudState === "loading" ? "Loading cloud garden…" : cloudState === "error" ? "Cloud garden unavailable" : "Cloud garden"}</span>
             <Link to="/profile" className="icon-button" aria-label="Notification preferences"><Bell size={18} /></Link>
-            <div className="avatar hidden sm:grid">S</div>
+            <div className="avatar hidden sm:grid">{avatarInitial}</div>
           </div>
         </header>
         {menuOpen && <div className="mobile-drawer lg:hidden"><nav aria-label="Mobile navigation">{[...navItems, ...extraNavItems].map((item) => <NavigationItem key={item.to} item={item} onNavigate={() => setMenuOpen(false)} />)}</nav></div>}
@@ -101,6 +104,13 @@ function AppShell() {
   );
 }
 
+function displayNameForUser(user: User | null): string {
+  const metadataName = user?.user_metadata.display_name;
+  if (typeof metadataName === "string" && metadataName.trim()) return metadataName.trim();
+  const emailName = user?.email?.split("@")[0]?.trim();
+  return emailName || "Sam";
+}
+
 function Brand({ compact = false }: { compact?: boolean }) {
   return <Link to="/" className={`brand ${compact ? "brand-compact" : ""}`} aria-label="Plant AI Companion home">
     <div className="brand-mark"><Flower2 size={20} strokeWidth={1.8} /></div>
@@ -117,6 +127,7 @@ function NavigationItem({ item, onNavigate }: { item: typeof navItems[number]; o
 }
 
 function TodayPage() {
+  const { user } = useAuth();
   const {
     plants, careTasks, cloudState, cloudError, retryCloudLoad, recordSoilCheck,
     completeCareTask, skipCareTask, snoozeCareTask, rescheduleCareTask, createCareTask,
@@ -145,7 +156,8 @@ function TodayPage() {
     task.plantId === plant.id && task.type === "soil_check" && careTaskState(task, now) === "overdue",
   ));
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning, Sam." : hour < 18 ? "Good afternoon, Sam." : "Good evening, Sam.";
+  const displayName = displayNameForUser(user);
+  const greeting = hour < 12 ? `Good morning, ${displayName}.` : hour < 18 ? `Good afternoon, ${displayName}.` : `Good evening, ${displayName}.`;
 
   async function handleSoilDecision(action: "water" | "skip" | "inspect", soil: SoilMoisture, condition: PlantCondition, recommendation: ReturnType<typeof calculateCareSchedule>) {
     if (!careSelection) return;
