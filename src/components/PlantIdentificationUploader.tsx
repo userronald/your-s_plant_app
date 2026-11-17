@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
 import { Camera, Plus, Trash2, Upload } from "lucide-react";
 import type { IdentificationPhoto, PlantOrgan } from "../domain/identification";
 import { prepareIdentificationPhoto } from "../data/plantPhotoCompression";
@@ -24,6 +24,7 @@ export function PlantIdentificationUploader({ onChange, disabled = false }: {
   const [photos, setPhotos] = useState<PhotoEntry[]>([]);
   const [error, setError] = useState("");
   const [preparing, setPreparing] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const galleryRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const photosRef = useRef(photos);
@@ -34,7 +35,7 @@ export function PlantIdentificationUploader({ onChange, disabled = false }: {
   }, []);
 
   async function acceptFiles(files: FileList | null) {
-    if (!files?.length) return;
+    if (disabled || preparing || !files?.length) return;
     const remaining = 5 - photos.length;
     if (remaining <= 0) {
       setError("You can add up to five photos of the same plant.");
@@ -68,6 +69,12 @@ export function PlantIdentificationUploader({ onChange, disabled = false }: {
     }
   }
 
+  function dropFiles(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setDragging(false);
+    void acceptFiles(event.dataTransfer.files);
+  }
+
   function changeOrgan(id: string, organ: PlantOrgan) {
     const next = photos.map((photo) => photo.id === id ? { ...photo, organ } : photo);
     setPhotos(next);
@@ -83,7 +90,11 @@ export function PlantIdentificationUploader({ onChange, disabled = false }: {
     setError("");
   }
 
-  return <div className="identification-uploader">
+  return <div className={`identification-uploader ${dragging ? "identification-uploader-dragging" : ""}`}
+    onDragEnter={(event) => { event.preventDefault(); if (!disabled && !preparing) setDragging(true); }}
+    onDragOver={(event) => event.preventDefault()}
+    onDragLeave={(event) => { if (event.currentTarget === event.target) setDragging(false); }}
+    onDrop={dropFiles}>
     <input ref={galleryRef} className="sr-only" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" multiple onChange={(event) => void acceptFiles(event.target.files)} aria-label="Choose plant photos from gallery" />
     <input ref={cameraRef} className="sr-only" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" capture="environment" onChange={(event) => void acceptFiles(event.target.files)} aria-label="Take a plant photo" />
     {photos.length > 0 && <div className="identification-photo-grid">{photos.map((photo) => <article className="identification-photo" key={photo.id}>

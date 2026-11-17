@@ -40,6 +40,23 @@ function AppShell() {
   const { pathname } = useLocation();
   const auth = useAuth();
   const { cloudState } = useAppData();
+  useEffect(() => setMenuOpen(false), [pathname]);
+  useEffect(() => {
+    function closeOnDesktop() {
+      if (window.innerWidth >= 1024) setMenuOpen(false);
+    }
+    window.addEventListener("resize", closeOnDesktop);
+    return () => window.removeEventListener("resize", closeOnDesktop);
+  }, []);
+  useEffect(() => {
+    if (!menuOpen) return;
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [menuOpen]);
+  const activeToolRoute = extraNavItems.some((item) => pathname === item.to || pathname.startsWith(`${item.to}/`));
   const displayName = displayNameForUser(auth.user);
   const avatarInitial = displayName.slice(0, 1).toUpperCase();
   const currentSection = pathname.startsWith("/plants") ? "My plants"
@@ -71,7 +88,7 @@ function AppShell() {
       <div className="min-h-screen lg:pl-[258px]">
         <header className="topbar">
           <div className="flex items-center gap-3">
-            <button className="icon-button lg:hidden" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}><Menu size={20} /></button>
+            <button className={`icon-button lg:hidden ${activeToolRoute ? "icon-button-current" : ""}`} aria-label={menuOpen ? "Close plant tools" : "Open plant tools"} aria-expanded={menuOpen} aria-controls="mobile-plant-tools" onClick={() => setMenuOpen((open) => !open)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
             <span className="lg:hidden"><Brand compact /></span>
             <div className="hidden lg:block text-sm text-muted">Your growing space <span className="mx-2 text-line">/</span> <span className="text-ink">{currentSection}</span></div>
           </div>
@@ -81,7 +98,7 @@ function AppShell() {
             <div className="avatar hidden sm:grid">{avatarInitial}</div>
           </div>
         </header>
-        {menuOpen && <div className="mobile-drawer lg:hidden"><nav aria-label="Mobile navigation">{[...navItems, ...extraNavItems].map((item) => <NavigationItem key={item.to} item={item} onNavigate={() => setMenuOpen(false)} />)}</nav></div>}
+        <div id="mobile-plant-tools" className="mobile-drawer lg:hidden" hidden={!menuOpen}><nav aria-label="More plant tools">{extraNavItems.map((item) => <NavigationItem key={item.to} item={item} onNavigate={() => setMenuOpen(false)} />)}</nav></div>
         <main className="content"><Routes>
           <Route path="/" element={<TodayPage />} />
           <Route path="/plants" element={<PlantsPage />} />

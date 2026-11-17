@@ -93,8 +93,20 @@ export async function requestAssistantResponse(input: {
         response_format: { type: "json_object" },
       }),
     });
-    if (!result.ok) throw new AssistantProviderError(`The plant assistant provider returned HTTP ${result.status}.`, "provider");
-    const envelope = await result.json() as {
+if (!result.ok) {
+  const errorBody = await result.text();
+
+  console.error("AI provider request failed:", {
+    status: result.status,
+    statusText: result.statusText,
+    body: errorBody.slice(0, 2000),
+  });
+
+  throw new AssistantProviderError(
+    `The plant assistant provider returned HTTP ${result.status}.`,
+    "provider",
+  );
+}    const envelope = await result.json() as {
       choices?: { message?: { content?: string | null } }[];
       usage?: { prompt_tokens?: number; completion_tokens?: number };
     };

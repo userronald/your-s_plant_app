@@ -5,6 +5,8 @@ import { loadPlantAssistantHistory, sendPlantAssistantMessage } from "../data/pl
 import { PlantAssistantPage } from "./PlantAssistantPage";
 
 const mockAuth = vi.hoisted(() => ({ user: null as { id: string } | null, loading: false }));
+const originalMatchMedia = window.matchMedia;
+const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
 
 vi.mock("../data/AuthContext", () => ({
   useAuth: () => mockAuth,
@@ -59,9 +61,23 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   mockAuth.user = null;
+  if (originalMatchMedia) Object.defineProperty(window, "matchMedia", { configurable: true, value: originalMatchMedia });
+  else Reflect.deleteProperty(window, "matchMedia");
+  if (originalScrollIntoView) Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { configurable: true, value: originalScrollIntoView });
+  else Reflect.deleteProperty(HTMLElement.prototype, "scrollIntoView");
 });
 
 describe("Plant assistant", () => {
+  it("uses immediate transcript scrolling when reduced motion is preferred", () => {
+    Object.defineProperty(window, "matchMedia", { configurable: true, value: vi.fn(() => ({ matches: true })) });
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { configurable: true, value: scrollIntoView });
+
+    renderPage();
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "auto", block: "end" });
+  });
+
   it("does not claim personal context when no plant is selected", async () => {
     renderPage();
     fireEvent.change(screen.getByLabelText("Your message"), { target: { value: "How is my plant doing?" } });

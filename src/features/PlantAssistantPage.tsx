@@ -65,7 +65,9 @@ export function PlantAssistantPage() {
   }, [contextSelection, discoveries, species]);
 
   useEffect(() => {
-    messageEnd.current?.scrollIntoView?.({ behavior: "smooth", block: "end" });
+    const prefersReducedMotion = typeof window.matchMedia === "function"
+      && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    messageEnd.current?.scrollIntoView?.({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "end" });
   }, [messages, busy]);
 
   useEffect(() => {

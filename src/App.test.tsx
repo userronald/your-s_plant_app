@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import App from "./App";
@@ -57,6 +57,33 @@ describe("Plant AI Companion routes and primary flows", () => {
   });
   it("renders /", () => { renderAt("/"); expect(screen.getByText(/A good day to grow/i)).toBeInTheDocument(); });
   it("renders /scan", () => { renderAt("/scan"); expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument(); });
+
+  it("keeps mobile quick navigation separate from additional plant tools", () => {
+    renderAt("/");
+    fireEvent.click(screen.getByRole("button", { name: "Open plant tools" }));
+
+    const tools = screen.getByRole("navigation", { name: "More plant tools" });
+    expect(screen.getByRole("button", { name: "Close plant tools" })).toHaveAttribute("aria-expanded", "true");
+    expect(tools).toHaveAccessibleName("More plant tools");
+    expect(within(tools).getByRole("link", { name: "Plant passport" })).toBeInTheDocument();
+    expect(within(tools).getByRole("link", { name: "Plant assistant" })).toBeInTheDocument();
+    expect(within(tools).queryByRole("link", { name: "Today" })).not.toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("navigation", { name: "More plant tools" })).not.toBeInTheDocument();
+  });
+
+  it("accepts dropped identification photos", async () => {
+    const { container } = renderAt("/scan");
+    const uploader = container.querySelector(".identification-uploader");
+    expect(uploader).not.toBeNull();
+    const image = new File(["plant"], "plant.jpg", { type: "image/jpeg" });
+
+    fireEvent.drop(uploader!, { dataTransfer: { files: [image] } });
+
+    expect(await screen.findByAltText("Plant photo 1")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Preview demo result" })).toBeEnabled();
+  });
 
   it("keeps demo identification visibly labeled, saves the accepted discovery, and adds it to the collection", async () => {
     renderAt("/scan");
